@@ -1,0 +1,25 @@
+services:
+  rabbitmq:
+    build: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  send:
+    build: send
+    ports:
+      - "3000:3000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  receive:
+    build: receive
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
